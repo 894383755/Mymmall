@@ -105,14 +105,27 @@ public class UserController {
 	/**
 	 * 忘记密码，验证回答
 	 * @param username
-	 * @param password
+	 * @param question
 	 * @param answer
 	 * @return
-	 * 验证不通过
+	 * 
 	 */
 	@RequestMapping(value = "forget_Check_Answer.do", method = RequestMethod.POST)
 	@ResponseBody
-	public ServiceResponse<String> forgetCheckAnswer(String username, String password, String answer){
-		return iUserService.checkAnswer(username, password, answer);
+	public ServiceResponse<String> forgetCheckAnswer(String username, String question, String answer){
+		return iUserService.checkAnswer(username, question, answer);
+	}
+	/**
+	 * 忘记密码，修改密码
+	 * @param username
+	 * @param password
+	 * @param forgetToken
+	 * @return
+	 * 
+	 */
+	@RequestMapping(value = "forget_Rest_Password.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken){
+		return iUserService.forgetRestPassword(username, passwordNew, forgetToken);
 	}
 }

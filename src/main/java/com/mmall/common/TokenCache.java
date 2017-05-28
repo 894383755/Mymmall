@@ -16,7 +16,10 @@ import com.google.common.cache.LoadingCache;
  *
  */
 public class TokenCache {
+	
 	private static Logger logger = LoggerFactory.getLogger(TokenCache.class);
+	
+	public static final String TOKEN_PREFIX = "token_";
 	private static LoadingCache<String, String> lodingCache = CacheBuilder.newBuilder()
 			.initialCapacity(1000)//初始化最大值
 			.maximumSize(10000)//最大值,超过使用lru算法
@@ -30,6 +33,7 @@ public class TokenCache {
 					return "null";
 				}
 			});
+	
 	public static void setKey(String key, String value){
 		lodingCache.put(key, value);
 	}

@@ -1,7 +1,6 @@
 package com.mmall.service.Impl;
 
 import java.util.UUID;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,13 +85,32 @@ public class UserServiceImpl implements IUserService {
 	}
 
 
-	public ServiceResponse<String> checkAnswer(String username, String password, String answer) {
-		int response = userMapper.checkAnswer(username, password, answer);
+	public ServiceResponse<String> checkAnswer(String username, String question, String answer) {
+		int response = userMapper.checkAnswer(username, question, answer);
 		if(response <= 0){
 			return ServiceResponse.creatByError("问题答案错误");
 		}
 		String forgetToken = UUID.randomUUID().toString();
-		TokenCache.setKey("Token_" + username, forgetToken);
+		TokenCache.setKey(TokenCache.TOKEN_PREFIX + username, forgetToken);
 		return ServiceResponse.creatBySuccess(forgetToken);
+	}
+	
+	public ServiceResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken){
+		if(StringUtils.isBlank(username)){
+			return ServiceResponse.creatByError("账号不为空");
+		}
+		if(this.checkValid(username, Const.USERNAME).isSuccess()){
+			return ServiceResponse.creatByError("账号错误");
+		}
+		if(StringUtils.isBlank(forgetToken)){
+			return ServiceResponse.creatByError("token错误");
+		}
+		if(StringUtils.equals(forgetToken, TokenCache.getKey(TokenCache.TOKEN_PREFIX + username)) == false){
+			return ServiceResponse.creatByError("账号错误，或者token失效");
+		}
+		if(userMapper.updatePasswordByUsername(username, MD5Util.MD5EncodeUtf8(passwordNew)) <= 0){
+			return ServiceResponse.creatByError("更改失败");
+		}
+		return ServiceResponse.creatBySuccess("更新成功");
 	}
 }

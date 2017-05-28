@@ -13,4 +13,6 @@ public interface IUserService {
 	ServiceResponse<String> selectQuestion(String username);
 	
 	ServiceResponse<String> checkAnswer(String username, String password, String answer);
+	
+	ServiceResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken);
 }
