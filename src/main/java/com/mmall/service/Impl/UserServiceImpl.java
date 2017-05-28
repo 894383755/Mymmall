@@ -1,10 +1,13 @@
 package com.mmall.service.Impl;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.mmall.common.Const;
 import com.mmall.common.ServiceResponse;
+import com.mmall.common.TokenCache;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -55,7 +58,7 @@ public class UserServiceImpl implements IUserService {
 
 
 	public ServiceResponse<String> checkValid(String str, String type) {
-		if(StringUtils.isNotBlank(type) == false){
+		if(StringUtils.isBlank(type) ){
 			return ServiceResponse.creatByError("输入为空或错误");
 		}
 		if(Const.USERNAME.equals(type)){
@@ -68,7 +71,28 @@ public class UserServiceImpl implements IUserService {
 		
 		return ServiceResponse.creatBySuccess("未存在");
 	}
-	
-	
 
+
+	public ServiceResponse<String> selectQuestion(String username) {
+		ServiceResponse<String> response = this.checkValid(username, Const.USERNAME);
+		if(response.isSuccess()){
+			return ServiceResponse.creatByError("用户不存在");
+		}
+		String question = userMapper.selectQuestionByUsername(username);
+		if(StringUtils.isNotBlank(question) == false){
+			return ServiceResponse.creatByError("找回密码问题是空的");
+		}
+		return ServiceResponse.creatBySuccess(question);
+	}
+
+
+	public ServiceResponse<String> checkAnswer(String username, String password, String answer) {
+		int response = userMapper.checkAnswer(username, password, answer);
+		if(response <= 0){
+			return ServiceResponse.creatByError("问题答案错误");
+		}
+		String forgetToken = UUID.randomUUID().toString();
+		TokenCache.setKey("Token_" + username, forgetToken);
+		return ServiceResponse.creatBySuccess(forgetToken);
+	}
 }

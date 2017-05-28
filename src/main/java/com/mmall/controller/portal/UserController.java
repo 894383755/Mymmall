@@ -68,9 +68,51 @@ public class UserController {
 	 * @return 
 	 * 
 	 */
-	@RequestMapping(value = "checkValid.do", method = RequestMethod.POST)
+	@RequestMapping(value = "check_Valid.do", method = RequestMethod.POST)
 	@ResponseBody
 	public ServiceResponse<String> checkValid(String str, String type){
 		return iUserService.checkValid(str, type);
+	}
+	
+	/**
+	 * 获取用户信息
+	 * @param session
+	 * @return
+	 * 
+	 */
+	@RequestMapping(value = "get_User_Info.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<User> getUserInfo(HttpSession session){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("用户未登录");
+		}
+		return ServiceResponse.creatBySuccess(user);
+	}
+	
+	/**
+	 * 忘记密码，得到问题
+	 * @param username
+	 * @return
+	 * 
+	 */
+	@RequestMapping(value = "forget_Get_Question.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<String> forgetGetQuestion(String username){
+		return iUserService.selectQuestion(username);
+	}
+	
+	/**
+	 * 忘记密码，验证回答
+	 * @param username
+	 * @param password
+	 * @param answer
+	 * @return
+	 * 验证不通过
+	 */
+	@RequestMapping(value = "forget_Check_Answer.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<String> forgetCheckAnswer(String username, String password, String answer){
+		return iUserService.checkAnswer(username, password, answer);
 	}
 }
