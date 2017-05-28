@@ -18,7 +18,7 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	private UserMapper userMapper;
 	
-
+	@Override
 	public ServiceResponse<User> login(String username, String password) {
 		int resultCount = userMapper.checkUsername(username);
 		if(resultCount == 0){
@@ -32,7 +32,7 @@ public class UserServiceImpl implements IUserService {
 		return ServiceResponse.creatBySuccess("用户登录成功",user);
 	}
 
-
+	@Override
 	public ServiceResponse<String> register(User user) {
 		//检查账号
 		ServiceResponse<String> response = this.checkValid(user.getUsername(), Const.USERNAME);
@@ -55,7 +55,7 @@ public class UserServiceImpl implements IUserService {
 		return ServiceResponse.creatBySuccess("创建成功");
 	}
 
-
+	@Override
 	public ServiceResponse<String> checkValid(String str, String type) {
 		if(StringUtils.isBlank(type) ){
 			return ServiceResponse.creatByError("输入为空或错误");
@@ -71,7 +71,7 @@ public class UserServiceImpl implements IUserService {
 		return ServiceResponse.creatBySuccess("未存在");
 	}
 
-
+	@Override
 	public ServiceResponse<String> selectQuestion(String username) {
 		ServiceResponse<String> response = this.checkValid(username, Const.USERNAME);
 		if(response.isSuccess()){
@@ -84,7 +84,7 @@ public class UserServiceImpl implements IUserService {
 		return ServiceResponse.creatBySuccess(question);
 	}
 
-
+	@Override
 	public ServiceResponse<String> checkAnswer(String username, String question, String answer) {
 		int response = userMapper.checkAnswer(username, question, answer);
 		if(response <= 0){
@@ -95,7 +95,8 @@ public class UserServiceImpl implements IUserService {
 		return ServiceResponse.creatBySuccess(forgetToken);
 	}
 	
-	public ServiceResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken){
+	@Override
+	public ServiceResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken){
 		if(StringUtils.isBlank(username)){
 			return ServiceResponse.creatByError("账号不为空");
 		}
@@ -113,4 +114,36 @@ public class UserServiceImpl implements IUserService {
 		}
 		return ServiceResponse.creatBySuccess("更新成功");
 	}
+
+
+	@Override
+	public ServiceResponse<String> resetPasswrod(User user, String passwordOld, String passwordNew) {
+		if(userMapper.checkPassword(MD5Util.MD5EncodeUtf8(passwordOld),user.getId()) <=0){
+			return ServiceResponse.creatByError("旧密码错误");
+		}
+		user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
+		if(userMapper.updateByPrimaryKeySelective(user) <= 0){
+			return ServiceResponse.creatByError("更新失败");
+		}
+		return ServiceResponse.creatBySuccess("更新成功");
+	}
+
+	@Override
+	public ServiceResponse<User> updataInformation(User user) {
+		if(userMapper.checkEmail(user.getEmail()) > 0){
+			return ServiceResponse.creatByError("email已经存在");
+		}
+		User updataUser = new User();
+		updataUser.setId(user.getId());
+		updataUser.setEmail(user.getEmail());
+		updataUser.setPhone(user.getPhone());
+		updataUser.setQuestion(user.getQuestion());
+		updataUser.setAnswer(user.getAnswer());
+		if(userMapper.updateByPrimaryKeySelective(updataUser) <= 0){
+			return ServiceResponse.creatByError("更新失败");
+		}
+		return ServiceResponse.creatBySuccess("更新成功",updataUser);
+	}
 }
+	
+	

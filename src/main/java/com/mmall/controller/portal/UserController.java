@@ -123,9 +123,50 @@ public class UserController {
 	 * @return
 	 * 
 	 */
-	@RequestMapping(value = "forget_Rest_Password.do", method = RequestMethod.POST)
+	@RequestMapping(value = "forget_Reset_Password.do", method = RequestMethod.POST)
 	@ResponseBody
-	public ServiceResponse<String> forgetRestPassword(String username, String passwordNew, String forgetToken){
-		return iUserService.forgetRestPassword(username, passwordNew, forgetToken);
+	public ServiceResponse<String> forgetResetPassword(String username, String passwordNew, String forgetToken){
+		return iUserService.forgetResetPassword(username, passwordNew, forgetToken);
+	}
+	
+	/**
+	 * 修改密码（登录状态）
+	 * @param session
+	 * @param passwordOld
+	 * @param passwordNew
+	 * @return
+	 * 
+	 */
+	@RequestMapping(value = "reset_Password.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<String> resetPassword(HttpSession session, String passwordOld, String passwordNew){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iUserService.resetPasswrod(user, passwordOld, passwordNew);
+	}
+	
+	/**
+	 * 修改个人信息，信箱需要验证
+	 * @param session
+	 * @param user
+	 * @return
+	 *
+	 */
+	@RequestMapping(value = "updata_Information.do", method = RequestMethod.POST)
+	@ResponseBody
+	public ServiceResponse<User> updataInformation(HttpSession session, User user){
+		User currentUser = (User) session.getAttribute(Const.CURRENT_USER);
+		if(currentUser == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		user.setId(currentUser.getId());
+		user.setUsername(currentUser.getUsername());
+		ServiceResponse<User> response = iUserService.updataInformation(user);
+		if(response.isSuccess()){
+			session.setAttribute(Const.CURRENT_USER, response.getData());
+		}
+		return  response;
 	}
 }
