@@ -13,6 +13,7 @@ import com.mmall.pojo.Product;
 import com.mmall.pojo.User;
 import com.mmall.service.IProductService;
 import com.mmall.service.IUserService;
+import com.mmall.vo.ProductDetailVo;
 
 @Controller
 @RequestMapping("/manage/product/")
@@ -61,5 +62,24 @@ public class ProductManageController {
 			return ServiceResponse.creatByError("无权限");
 		}
 		return iProductService.setSaleStatus(productId, status);
+	}
+	/**
+	 * 获取产品详情
+	 * @param session
+	 * @param productId
+	 * @return
+	 * 未测试
+	 */
+	@RequestMapping("detail.do")
+	@ResponseBody
+	public ServiceResponse<ProductDetailVo> getDetail(HttpSession session, Integer productId){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		if(iUserService.checkAdminRole(user).isNotSuccess()){
+			return ServiceResponse.creatByError("无权限");
+		}
+		return iProductService.manageProductDetail(productId);
 	}
 }

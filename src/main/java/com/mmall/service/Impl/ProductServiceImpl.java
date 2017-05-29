@@ -5,14 +5,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mmall.common.ServiceResponse;
+import com.mmall.dao.CategoryMapper;
 import com.mmall.dao.ProductMapper;
+import com.mmall.pojo.Category;
 import com.mmall.pojo.Product;
 import com.mmall.service.IProductService;
+import com.mmall.util.DateTimeUtil;
+import com.mmall.vo.ProductDetailVo;
 
 @Service("iProductService")
 public class ProductServiceImpl implements IProductService {
 	@Autowired
 	private ProductMapper productMapper;
+	@Autowired
+	private CategoryMapper categoryMapper;
 
 	@Override
 	public ServiceResponse<Product> saveOrUpdataProduct(Product product) {
@@ -52,5 +58,44 @@ public class ProductServiceImpl implements IProductService {
 		}
 		return ServiceResponse.creatBySuccess("更新成功");
 	}
+
+	@Override
+	public ServiceResponse<ProductDetailVo> manageProductDetail(Integer productId) {
+		if(productId == null){
+			return ServiceResponse.creatByError("参数错误");
+		}
+		Product product = productMapper.selectByPrimaryKey(productId);
+		if(product == null){
+			return ServiceResponse.creatByError("id错误");
+		}
+		ProductDetailVo productDetailVo = assembleProductDetailVo(product);
+		return ServiceResponse.creatBySuccess("查询成功",productDetailVo);
+	}
+	private ProductDetailVo assembleProductDetailVo(Product product){
+        ProductDetailVo productDetailVo = new ProductDetailVo();
+        productDetailVo.setId(product.getId());
+        productDetailVo.setSubtitle(product.getSubtitle());
+        productDetailVo.setPrice(product.getPrice());
+        productDetailVo.setMainImage(product.getMainImage());
+        productDetailVo.setSubImages(product.getSubImages());
+        productDetailVo.setCategoryId(product.getCategoryId());
+        productDetailVo.setDetail(product.getDetail());
+        productDetailVo.setName(product.getName());
+        productDetailVo.setStatus(product.getStatus());
+        productDetailVo.setStock(product.getStock());
+        //图片的热加载
+        //productDetailVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix","http://img.happymmall.com/"));
+
+        Category category = categoryMapper.selectByPrimaryKey(product.getCategoryId());
+        if(category == null){
+            productDetailVo.setParentCategoryId(0);//默认根节点
+        }else{
+            productDetailVo.setParentCategoryId(category.getParentId());
+        }
+
+        productDetailVo.setCreateTime(DateTimeUtil.dateToStr(product.getCreateTime()));
+        productDetailVo.setUpdateTime(DateTimeUtil.dateToStr(product.getUpdateTime()));
+        return productDetailVo;
+    }
 	
 }
