@@ -129,4 +129,20 @@ public class ProductServiceImpl implements IProductService {
 	        productListVo.setStatus(product.getStatus());
 	        return productListVo;
 	    }
+	@Override
+	public ServiceResponse<PageInfo> serchProduct(String productName,Integer productId, int pageNum, int pageSize){
+		PageHelper.startPage(pageNum,pageSize);
+		if(StringUtils.isBlank(productName)){
+			return ServiceResponse.creatByError("参数错误");
+		}
+		productName = new StringBuilder().append("%").append(productName).append("%").toString();
+		List<Product> productList = productMapper.selectByNameAndProductId(productName, productId);
+		List<ProductListVo> productListVo = Lists.newArrayList();
+		for(Product product : productList){
+			productListVo.add(assembleProductListVo(product));
+		}
+		PageInfo pageResult = new PageInfo(productList);
+		pageResult.setList(productListVo);
+		return ServiceResponse.creatBySuccess("查询成功",pageResult);
+	}
 }

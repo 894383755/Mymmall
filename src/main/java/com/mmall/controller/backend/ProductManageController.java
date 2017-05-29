@@ -85,9 +85,17 @@ public class ProductManageController {
 		return iProductService.manageProductDetail(productId);
 	}
 	
+	/**
+	 * 后台商品列表
+	 * @param session
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 * 未测试
+	 */
 	@RequestMapping("list.do")
 	@ResponseBody
-	public ServiceResponse<PageInfo> getList(HttpSession session, @RequestParam(value="pageNum",defaultValue="1")int pageNum,@RequestParam(value="pageSize",defaultValue="1") int pageSize){
+	public ServiceResponse<PageInfo> getList(HttpSession session, @RequestParam(value="pageNum",defaultValue="1")int pageNum,@RequestParam(value="pageSize",defaultValue="10") int pageSize){
 		User user = (User) session.getAttribute(Const.CURRENT_USER);
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");
@@ -96,5 +104,28 @@ public class ProductManageController {
 			return ServiceResponse.creatByError("无权限");
 		}
 		return iProductService.getProductList(pageNum, pageSize);
+	}
+	
+	/**
+	 * 后台商品搜索
+	 * @param session
+	 * @param productName
+	 * @param productId
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 * 未测试
+	 */
+	@RequestMapping("search.do")
+	@ResponseBody
+	public ServiceResponse<PageInfo> productSearch(HttpSession session,String productName,Integer productId, @RequestParam(value="pageNum",defaultValue="1")int pageNum,@RequestParam(value="pageSize",defaultValue="10") int pageSize){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		if(iUserService.checkAdminRole(user).isNotSuccess()){
+			return ServiceResponse.creatByError("无权限");
+		}
+		return iProductService.serchProduct(productName, productId, pageNum, pageSize);
 	}
 }
