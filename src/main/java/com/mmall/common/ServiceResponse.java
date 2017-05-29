@@ -31,6 +31,9 @@ public class ServiceResponse<T> implements Serializable {
 	public boolean isSuccess(){
 		return this.status == ResponseCode.SUCCESS.getCode();
 	}
+	public boolean isNotSuccess(){
+		return ! this.isSuccess();
+	}
 	public int getStatus() {
 		return status;
 	}
