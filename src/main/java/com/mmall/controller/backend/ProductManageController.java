@@ -5,8 +5,10 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.PageInfo;
 import com.mmall.common.Const;
 import com.mmall.common.ServiceResponse;
 import com.mmall.pojo.Product;
@@ -81,5 +83,18 @@ public class ProductManageController {
 			return ServiceResponse.creatByError("无权限");
 		}
 		return iProductService.manageProductDetail(productId);
+	}
+	
+	@RequestMapping("list.do")
+	@ResponseBody
+	public ServiceResponse<PageInfo> getList(HttpSession session, @RequestParam(value="pageNum",defaultValue="1")int pageNum,@RequestParam(value="pageSize",defaultValue="1") int pageSize){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		if(iUserService.checkAdminRole(user).isNotSuccess()){
+			return ServiceResponse.creatByError("无权限");
+		}
+		return iProductService.getProductList(pageNum, pageSize);
 	}
 }
