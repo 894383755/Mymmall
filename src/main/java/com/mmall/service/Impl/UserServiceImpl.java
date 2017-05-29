@@ -144,6 +144,14 @@ public class UserServiceImpl implements IUserService {
 		}
 		return ServiceResponse.creatBySuccess("更新成功",updataUser);
 	}
+
+	@Override
+	public ServiceResponse<User> checkAdminRole(User user) {
+		if(user == null || user.getRole().intValue() == Const.Role.ROLE_CUSTOMER){
+			return ServiceResponse.creatByError("错误，不是管理员");
+		}
+		return ServiceResponse.creatBySuccess("是管理员");
+	}
 }
 	
 	
