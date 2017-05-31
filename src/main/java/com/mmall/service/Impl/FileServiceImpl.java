@@ -18,24 +18,25 @@ public class FileServiceImpl implements IFileService {
 	
 	@Override
 	public String upload(MultipartFile file, String path){
-		String fileName = file.getOriginalFilename();
-		//扩展名字
-		String fileExtensionName = fileName.substring(fileName.lastIndexOf('.')+1);
-		String uploadFileName = UUID.randomUUID().toString() + '.' + fileExtensionName;
+		String fileName = file.getOriginalFilename();//文件名
+		String fileExtensionName = fileName.substring(fileName.lastIndexOf('.')+1);//扩展名字
+		String uploadFileName = UUID.randomUUID().toString() + "." + fileExtensionName;//存储的随机名字
 		logger.info("开始上传文件，上传文件名：{}，上传路径{}，新文件名字{}",fileName,path,uploadFileName);
 		File fileDir = new File(path);
-		if(!fileDir.exists()){
+		if(!fileDir.exists()){//创建目录
 			fileDir.setWritable(true);
 			fileDir.mkdirs(); 
 		}
 		File targeFile = new File(path,uploadFileName);
 		try {
 			file.transferTo(targeFile);
+			//targeFile.delete();//删除文件
 		} catch (IllegalStateException | IOException e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
+			logger.error("文件上传失败");
 			return null;
 		}
 		return targeFile.getName();
 	}
+	
 }

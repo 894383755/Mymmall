@@ -125,7 +125,7 @@ public class ProductManageController {
 	 * @param pageNum
 	 * @param pageSize
 	 * @return
-	 * ProductId 测试出错
+	 * 
 	 */
 	@RequestMapping("search.do")
 	@ResponseBody
@@ -145,12 +145,11 @@ public class ProductManageController {
 	 * @param file
 	 * @param session
 	 * @return
-	 * 测试失败
+	 * 
 	 */
 	@RequestMapping("upload.do")
 	@ResponseBody
 	public ServiceResponse upload(@RequestParam("upload_file")MultipartFile file, HttpSession session){
-		Map resultMap = Maps.newHashMap();
 		User user = (User) session.getAttribute(Const.CURRENT_USER);
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");
@@ -158,6 +157,10 @@ public class ProductManageController {
 		if(iUserService.checkAdminRole(user).isNotSuccess()){
 			return ServiceResponse.creatByError("无权限");
 		}
+		if(file == null || file.isEmpty()){
+			return ServiceResponse.creatByError("无文件");
+		}
+		Map resultMap = Maps.newHashMap();
 		String path = session.getServletContext().getRealPath("upload");
 		String targetFileName = iFileService.upload(file, path);
 		Map fileMap = Maps.newHashMap();
@@ -170,7 +173,7 @@ public class ProductManageController {
 	 * @param file
 	 * @param session
 	 * @return
-	 * 测试失败
+	 * 
 	 */
 	@RequestMapping("richtext_img_upload.do")
 	@ResponseBody
@@ -178,7 +181,6 @@ public class ProductManageController {
 		Map resultMap = Maps.newHashMap();
 		User user = (User) session.getAttribute(Const.CURRENT_USER);
 		if(user == null){
-			
 			resultMap.put("succes", false);
 			resultMap.put("msg", "请登录管理员帐号");
 			return resultMap;
