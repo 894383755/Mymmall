@@ -17,12 +17,25 @@ public class ProductController {
 	@Autowired
 	private IProductService iproductService;
 	
+	/**
+	 * 商品细节
+	 * @param productId
+	 * @return
+	 */
 	@RequestMapping("detail.do")
 	@ResponseBody
 	public ServiceResponse<ProductDetailVo> detail(Integer productId){
 		return iproductService.getProductDetail(productId);
 	}
-	
+	/**
+	 * 查询商品列表
+	 * @param keywrod
+	 * @param categoryId
+	 * @param pageNum
+	 * @param pageSize
+	 * @param orderBy
+	 * @return
+	 */
 	@RequestMapping("list.do")
 	@ResponseBody
 	public ServiceResponse<PageInfo> list(@RequestParam(value = "keywrod",required = false) String keywrod, @RequestParam(value = "categoryId",required = false)Integer categoryId, 

@@ -44,16 +44,18 @@ public class ProductServiceImpl implements IProductService {
 			return ServiceResponse.creatByError("未登录");
 		}
 		product.setMainImage(subImageArry[0]);
-		if(product.getId() == null){
-			if(productMapper.updateByPrimaryKeySelective(product) <= 0){
+		if(product.getId() != null){//有id更新产品
+			if(productMapper.updateByPrimaryKeySelective(product) > 0){
 				return ServiceResponse.creatBySuccess("更新产品成功");
 			}
 			return ServiceResponse.creatByError("更新产品失败");
+		}else{
+			if(productMapper.insert(product) > 0 ){
+				return ServiceResponse.creatBySuccess("新建产品成功");
+			}
+			return ServiceResponse.creatByError("新建产品失败");
 		}
-		if(productMapper.insert(product) <= 0 ){
-			return ServiceResponse.creatBySuccess("新建产品成功");
-		}
-		return ServiceResponse.creatByError("新建产品失败");
+		
 	}
 
 	@Override
@@ -176,12 +178,13 @@ public class ProductServiceImpl implements IProductService {
 		List<Integer> categoryIdList = new ArrayList<Integer>();
 		if(categoryId != null){
 			Category category = categoryMapper.selectByPrimaryKey(categoryId);
-			if(category == null && StringUtils.isBlank(keyword)){
+			if(category == null && StringUtils.isBlank(keyword)){//没有查询到
 				PageHelper.startPage(pageNum,pageSize);
 				List<ProductListVo> productListVosList = Lists.newArrayList();
 				PageInfo pageInfo = new PageInfo(productListVosList);
 				return ServiceResponse.creatBySuccess("没有该分类",pageInfo);
 			}
+			//查询子类所有分类id列表
 			categoryIdList =  iCategoryService.selectCategoryAndDeepChildrenCategory(categoryId).getData();
 		}
 		if(StringUtils.isNotBlank(keyword)){
@@ -194,13 +197,14 @@ public class ProductServiceImpl implements IProductService {
 				PageHelper.orderBy(orderByArray[0] + " " + orderByArray[1]);
 			}
 		}
-		List<Product> productList = productMapper.selectByNameAndCategoryIds(keyword, categoryIdList);
+		List<Product> productList = productMapper.selectByNameAndCategoryIds(StringUtils.isBlank(keyword)?null:keyword,categoryIdList.size()==0?null:categoryIdList);
 		List<ProductListVo> productListVoList = Lists.newArrayList();
 		for (Product product: productList) {
 			ProductListVo productListVo = assembleProductListVo(product);
 			productListVoList.add(productListVo);
 		}
-		PageInfo pageInfo = new PageInfo(productListVoList);
+		PageInfo pageInfo = new PageInfo(productList);
+		pageInfo.setList(productListVoList);
 		return ServiceResponse.creatBySuccess("获取成功",pageInfo);
 	}
 }

@@ -42,7 +42,7 @@ public class ProductManageController {
 	 * @param session
 	 * @param product
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("save.do")
 	@ResponseBody
@@ -62,7 +62,7 @@ public class ProductManageController {
 	 * @param productId
 	 * @param status
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("set_sale_status.do")
 	@ResponseBody
@@ -81,7 +81,7 @@ public class ProductManageController {
 	 * @param session
 	 * @param productId
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("detail.do")
 	@ResponseBody
@@ -102,7 +102,7 @@ public class ProductManageController {
 	 * @param pageNum
 	 * @param pageSize
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("list.do")
 	@ResponseBody
@@ -125,7 +125,7 @@ public class ProductManageController {
 	 * @param pageNum
 	 * @param pageSize
 	 * @return
-	 * 未测试
+	 * ProductId 测试出错
 	 */
 	@RequestMapping("search.do")
 	@ResponseBody
@@ -145,7 +145,7 @@ public class ProductManageController {
 	 * @param file
 	 * @param session
 	 * @return
-	 * 未测试
+	 * 测试失败
 	 */
 	@RequestMapping("upload.do")
 	@ResponseBody
@@ -170,6 +170,7 @@ public class ProductManageController {
 	 * @param file
 	 * @param session
 	 * @return
+	 * 测试失败
 	 */
 	@RequestMapping("richtext_img_upload.do")
 	@ResponseBody
