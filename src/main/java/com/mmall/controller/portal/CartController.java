@@ -13,8 +13,8 @@ import com.mmall.pojo.User;
 import com.mmall.service.ICartService;
 
 @Controller
-@RequestMapping("/car/")
-public class CarController {
+@RequestMapping("/cart/")
+public class CartController {
 	@Autowired
 	private ICartService iCartService;
 	/**
@@ -23,7 +23,7 @@ public class CarController {
 	 * @param count 增加的数量
 	 * @param productId 商品的id
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("add.do")
 	@ResponseBody
@@ -40,7 +40,7 @@ public class CarController {
 	 * @param count
 	 * @param productId
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("updata.do")
 	@ResponseBody
@@ -49,14 +49,14 @@ public class CarController {
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");
 		}else 
-			return iCartService.add(user.getId(), productId, count);
+			return iCartService.updata(user.getId(), productId, count);
 	}
 	/**
 	 * 删除购物车中的商品
 	 * @param session
 	 * @param productIds 多个商品id之间用,分割
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("deleteProduct.do")
 	@ResponseBody
@@ -72,7 +72,7 @@ public class CarController {
 	 * 查询购物车内容
 	 * @param session
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("list.do")
 	@ResponseBody
@@ -87,7 +87,7 @@ public class CarController {
 	 * 全选商品
 	 * @param session
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("select_all.do")
 	@ResponseBody
@@ -102,7 +102,7 @@ public class CarController {
 	 * 全反选
 	 * @param session
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("un_select_all.do")
 	@ResponseBody
@@ -118,7 +118,7 @@ public class CarController {
 	 * @param session
 	 * @param productId
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("select.do")
 	@ResponseBody
@@ -127,14 +127,14 @@ public class CarController {
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");
 		}else 
-			return iCartService.selectOrUnSelect(user.getId(), Const.Cart.UN_CHECKED, productId);
+			return iCartService.selectOrUnSelect(user.getId(), Const.Cart.CHECKED, productId);
 	}
 	/**
 	 * 单个不选
 	 * @param session
 	 * @param productId
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("un_select.do")
 	@ResponseBody
@@ -150,11 +150,11 @@ public class CarController {
 	 * @param session
 	 * @param productId
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("get_cart_product_count.do")
 	@ResponseBody
-	public ServiceResponse getCartProductCount(HttpSession session, Integer productId){
+	public ServiceResponse getCartProductCount(HttpSession session){
 		User user = (User) session.getAttribute(Const.CURRENT_USER);
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");

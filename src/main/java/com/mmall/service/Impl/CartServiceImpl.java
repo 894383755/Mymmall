@@ -44,7 +44,7 @@ public class CartServiceImpl implements ICartService {
 			cart.setQuantity(count);
 			cartMapper.updateByPrimaryKeySelective(cart);
 		}
-		return this.list(userId);
+		return this.list(userId).setMsg("添加成功");
 	}
 	
 	@Override
@@ -56,19 +56,19 @@ public class CartServiceImpl implements ICartService {
 			cart.setQuantity(count);
 		}
 		cartMapper.updateByPrimaryKeySelective(cart);
-		return this.list(userId);
+		return this.list(userId).setMsg("修改成功");
 	}
 	
 	@Override
 	public ServiceResponse<CartVo> deleteProduct(Integer userId, String productIds){
-		if(userId == null )
+		if(userId == null || productIds == null)
 			return ServiceResponse.creatByError("参数错误");
 		List<String> productList = Splitter.on(',').splitToList(productIds);
 		if(productList == null){
 			return ServiceResponse.creatByError("删除错误，无删除对象");
 		}
 		cartMapper.deleteByUserIdProductIds(userId, productList);
-		return this.list(userId);
+		return this.list(userId).setMsg("删除成功");
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class CartServiceImpl implements ICartService {
 	public ServiceResponse<CartVo> selectOrUnSelect(Integer userId, Integer checked, Integer productId){
 		if(userId == null )
 			return ServiceResponse.creatByError("参数错误");
-		cartMapper.checkedOrUncheckedProduct(userId, null, checked);
+		cartMapper.checkedOrUncheckedProduct(userId, productId, checked);
 		return this.list(userId);
 	}
 	
@@ -91,32 +91,39 @@ public class CartServiceImpl implements ICartService {
 	public ServiceResponse<Integer> getCartProductCount(Integer userId){
 		if(userId == null )
 			return ServiceResponse.creatByError("参数错误");
-		Integer count = cartMapper.selectCartProductCheckedStatusByUserId(userId);
+		Integer count = cartMapper.selectCartProductCount(userId);
 		return ServiceResponse.creatBySuccess("查询成功",count);
 	}
 	
 	
-	
+	/**
+	 * 获取正确的购物车内所有商品的信息
+	 * @param userId
+	 * @return
+	 */
 	private CartVo getCartVoLimit(Integer userId){
 		CartVo cartVo = new CartVo();//购物车总的信息
-		List<Cart> cartList = cartMapper.selectCartByUserId(userId);
-		List<CartProductVo> cartProductVos = Lists.newArrayList();
-		BigDecimal cartTotalPrice = new BigDecimal("0");
+		List<Cart> cartList = cartMapper.selectCartByUserId(userId);//购物车列表
+		List<CartProductVo> cartProductVos = Lists.newArrayList();//购物车商品列表
+		BigDecimal cartTotalPrice = new BigDecimal("0");//总价
 		if(CollectionUtils.isNotEmpty(cartList)){
 			for(Cart cart: cartList){
+				if(cart == null)
+					continue;
 				CartProductVo cartProductVo = new CartProductVo();
 				cartProductVo.setId(cart.getId());
 				cartProductVo.setUserId(cart.getUserId());
 				cartProductVo.setProductId(cart.getProductId());
 				Product product = productMapper.selectByPrimaryKey(cart.getProductId());
-				if(product != null){
-					cartProductVo.setProductMainImage(product.getMainImage());
-					cartProductVo.setProductName(product.getName());
-					cartProductVo.setProductSubtitle(product.getSubtitle());
-					cartProductVo.setProductStatus(product.getStatus());
-					cartProductVo.setProductPrice(product.getPrice());
-					cartProductVo.setProductStock(product.getStock());
+				if(product == null){
+					continue;
 				}
+				cartProductVo.setProductMainImage(product.getMainImage());
+				cartProductVo.setProductName(product.getName());
+				cartProductVo.setProductSubtitle(product.getSubtitle());
+				cartProductVo.setProductStatus(product.getStatus());
+				cartProductVo.setProductPrice(product.getPrice());
+				cartProductVo.setProductStock(product.getStock());
 				int buyLimitCount;
 				if(product.getStatus() >= cart.getProductId()){//判断库存是否充足
 					buyLimitCount = cart.getProductId();
