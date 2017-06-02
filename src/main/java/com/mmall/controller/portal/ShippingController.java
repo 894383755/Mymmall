@@ -22,7 +22,13 @@ import com.mmall.service.IShippingService;
 public class ShippingController {
 	@Autowired
 	private IShippingService iShippingServiec;
-	
+	/**
+	 * 增加购物地址
+	 * @param session
+	 * @param shipping
+	 * @return
+	 * 
+	 */
 	@RequestMapping("add.do")
 	@ResponseBody
 	public ServiceResponse add(HttpSession session, Shipping shipping){
@@ -32,7 +38,13 @@ public class ShippingController {
 		}
 		return iShippingServiec.add(user.getId(), shipping);
 	}
-	
+	/**
+	 * 删除购物地址
+	 * @param session
+	 * @param shippingId
+	 * @return
+	 * 
+	 */
 	@RequestMapping("del.do")
 	@ResponseBody
 	public ServiceResponse del(HttpSession session, Integer shippingId){
@@ -42,7 +54,13 @@ public class ShippingController {
 		}
 		return iShippingServiec.del(user.getId(), shippingId);
 	}
-	
+	/**
+	 * 更新购物地址
+	 * @param session
+	 * @param shipping
+	 * @return
+	 * 
+	 */
 	@RequestMapping("updata.do")
 	@ResponseBody
 	public ServiceResponse updata(HttpSession session, Shipping shipping){
@@ -52,7 +70,13 @@ public class ShippingController {
 		}
 		return iShippingServiec.updata(user.getId(), shipping);
 	}
-	
+	/**
+	 * 获得某个购物地址
+	 * @param session
+	 * @param shippingId
+	 * @return
+	 * 
+	 */
 	@RequestMapping("select.do")
 	@ResponseBody
 	public ServiceResponse select(HttpSession session, Integer shippingId){
@@ -62,6 +86,14 @@ public class ShippingController {
 		}
 		return iShippingServiec.select(user.getId(), shippingId);
 	}
+	/**
+	 * 获得该用户所有的购物地址
+	 * @param pageNum
+	 * @param pageSize
+	 * @param session
+	 * @return
+	 * 
+	 */
 	@RequestMapping("list.do")
 	@ResponseBody
 	public ServiceResponse list(@RequestParam(value = "pageNum", defaultValue = "1")int pageNum, @RequestParam(value="pageSize",defaultValue="10")int pageSize,HttpSession session){

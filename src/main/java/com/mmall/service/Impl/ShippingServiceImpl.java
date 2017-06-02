@@ -50,18 +50,18 @@ public class ShippingServiceImpl implements IShippingService {
 		shipping.setUserId(userId);
 		int resCount = 	shippingMapper.updateByShipping(shipping);
 		if(resCount >0 ){
-			return ServiceResponse.creatBySuccess("新建地址成功");
+			return ServiceResponse.creatBySuccess("更新地址成功");
 		}
-		return ServiceResponse.creatByError("新建地址失败");
+		return ServiceResponse.creatByError("更新地址失败");
 	}
 	
 	@Override
 	public ServiceResponse select(Integer userId, Integer shippingId){
 		Shipping shipping = shippingMapper.selectByShippingIdUserId(userId, shippingId);
 		if(shipping == null ){
-			return ServiceResponse.creatByError("删除地址失败");
+			return ServiceResponse.creatByError("查找地址失败");
 		}
-		return ServiceResponse.creatBySuccess("删除地址成功",shipping);
+		return ServiceResponse.creatBySuccess("查找地址成功",shipping);
 	}
 	
 	@Override
@@ -69,6 +69,6 @@ public class ShippingServiceImpl implements IShippingService {
 		PageHelper.startPage(pageNum,pageSize);
 		List<Shipping> shippingList = shippingMapper.selectByUserId(userId);
 		PageInfo pageInfo = new PageInfo(shippingList);
-		return ServiceResponse.creatBySuccess("删除地址成功",pageInfo);
+		return ServiceResponse.creatBySuccess("查找地址列表成功",pageInfo);
 	}
 }
