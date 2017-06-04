@@ -40,6 +40,30 @@ public class OrderController {
 	private IOrderService iOrderService;
 	
 	/**
+	 * 创建订单
+	 * @param session
+	 * @param shippingId
+	 * @return
+	 */
+	@RequestMapping("create.do")
+	@ResponseBody
+	public ServiceResponse create(HttpSession session, Integer shippingId){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iOrderService.createOrder(user.getId(), shippingId);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
 	 * 支付入口
 	 * @param session
 	 * @param request

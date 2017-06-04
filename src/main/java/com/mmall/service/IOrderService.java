@@ -12,4 +12,6 @@ public interface IOrderService {
 
 	ServiceResponse queryOrderPayStatus(Integer userId, Long orderNo);
 
+	ServiceResponse createOrder(Integer userId, Integer shippingId);
+
 }
