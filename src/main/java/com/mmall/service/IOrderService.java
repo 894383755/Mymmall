@@ -2,7 +2,9 @@ package com.mmall.service;
 
 import java.util.Map;
 
+import com.github.pagehelper.PageInfo;
 import com.mmall.common.ServiceResponse;
+import com.mmall.vo.OrderVo;
 
 public interface IOrderService {
 
@@ -21,5 +23,13 @@ public interface IOrderService {
 	ServiceResponse getOrderDetail(Integer userId, Long orderNo);
 
 	ServiceResponse getOrderList(Integer userId, int pageNum, int pageSize);
+
+	ServiceResponse manageList(int pageNum, int pageSize);
+
+	ServiceResponse<String> manageSendGoods(Long orderNo);
+
+	ServiceResponse<PageInfo> manageSearch(Long orderNo, int pageNum, int pageSize);
+
+	ServiceResponse<OrderVo> manageDetail(Long orderNo);
 
 }
