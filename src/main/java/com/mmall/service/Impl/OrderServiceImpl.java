@@ -24,6 +24,8 @@ import com.alipay.demo.trade.model.result.AlipayF2FPrecreateResult;
 import com.alipay.demo.trade.service.AlipayTradeService;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.utils.ZxingUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mmall.common.Const;
@@ -44,6 +46,7 @@ import com.mmall.service.IOrderService;
 import com.mmall.util.BigDecimalUtil;
 import com.mmall.util.DateTimeUtil;
 import com.mmall.vo.OrderItemVo;
+import com.mmall.vo.OrderProductVo;
 import com.mmall.vo.OrderVo;
 import com.mmall.vo.ShippingVo;
 
@@ -220,7 +223,74 @@ public class OrderServiceImpl implements IOrderService {
 		return ServiceResponse.creatBySuccess("获取成功",orderItems);
 	}
 	
+	@Override
+	public ServiceResponse cancel(Integer userId, Long orderNo){
+		Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
+		if(order == null){
+			return ServiceResponse.creatByError("订单不存在");
+		}
+		if(order.getStatus() != Const.OrderStatusEnum.NO_PAY.getCode()){
+			return ServiceResponse.creatByError("订单已支付，无法退款");
+		}
+		order.setStatus(Const.OrderStatusEnum.CANCELED.getCode());
+		int count = orderMapper.insertSelective(order);
+		if(count <= 0){
+			return ServiceResponse.creatByError("更新失败");
+		}
+		return ServiceResponse.creatBySuccess("更新成功");
+	}
+	@Override
+	public ServiceResponse getOrderCartProduct(Integer userId){
+		OrderProductVo orderProductVo = new OrderProductVo();
+		List<Cart> carts = cartMapper.selectCartByUserId(userId);
+		ServiceResponse serviceResponse = this.getCartOrderItem(userId, carts);
+		if(serviceResponse.isNotSuccess()){
+			return serviceResponse;
+		}
+		List<OrderItem> orderItemList =( List<OrderItem> ) serviceResponse.getData();
+
+        List<OrderItemVo> orderItemVoList = Lists.newArrayList();
+
+        BigDecimal payment = new BigDecimal("0");
+        for(OrderItem orderItem : orderItemList){
+            payment = BigDecimalUtil.add(payment.doubleValue(),orderItem.getTotalPrice().doubleValue());
+            orderItemVoList.add(assembleOrderItemVo(orderItem));
+        }
+        orderProductVo.setProductTotalPrice(payment);
+        orderProductVo.setOrderItemVoList(orderItemVoList);
+        return ServiceResponse.creatBySuccess("获取成功", orderProductVo);
+	}
 	
+	@Override
+	public ServiceResponse getOrderDetail(Integer userId, Long orderNo){
+		Order order = orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
+		if(order == null){
+			
+			return ServiceResponse.creatByError("订单不存在");
+		}
+		List<OrderItem> orderItems = orderItemMapper.getByOrderNoUserId(orderNo, userId);
+		OrderVo orderVo = this.assembleOrderVo(order, orderItems);
+		return ServiceResponse.creatBySuccess("获取成功", orderVo);
+	}
+	
+	@Override
+	public ServiceResponse getOrderList(Integer userId, int pageNum, int pageSize){
+		PageHelper.startPage(pageNum, pageSize);
+		List<Order> orders = orderMapper.selectByUserId(userId);
+		PageInfo pageInfo = new PageInfo(orders);
+		pageInfo.setList(orders);
+		return ServiceResponse.creatBySuccess("获取成功", pageInfo);
+	}
+	
+	private List<OrderVo> assembleOrderVoList(List<Order> orderList, Integer userId){
+		List<OrderVo> orderVos = Lists.newArrayList();
+		for(Order order : orderList){
+			List<OrderItem> orderItems = orderItemMapper.getByOrderNoUserId(order.getOrderNo(), userId);
+			OrderVo orderVo = this.assembleOrderVo(order, orderItems);
+			orderVos.add(orderVo);
+		}
+		return orderVos;
+	}
 	
 	
 	

@@ -14,4 +14,12 @@ public interface IOrderService {
 
 	ServiceResponse createOrder(Integer userId, Integer shippingId);
 
+	ServiceResponse cancel(Integer userId, Long orderNo);
+
+	ServiceResponse getOrderCartProduct(Integer userId);
+
+	ServiceResponse getOrderDetail(Integer userId, Long orderNo);
+
+	ServiceResponse getOrderList(Integer userId, int pageNum, int pageSize);
+
 }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alipay.api.AlipayApiException;
@@ -55,11 +56,68 @@ public class OrderController {
 		return iOrderService.createOrder(user.getId(), shippingId);
 	}
 	
+	/**
+	 * 取消订单
+	 * @param session
+	 * @param shippingId
+	 * @return
+	 */
+	@RequestMapping("cancel.do")
+	@ResponseBody
+	public ServiceResponse cancel(HttpSession session, Long orderNo){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iOrderService.cancel(user.getId(), orderNo);
+	}
 	
-	
-	
-	
-	
+	/**
+	 * 获得已经选中的购物详情
+	 * @param session
+	 * @param shippingId
+	 * @return
+	 */
+	@RequestMapping("get_order_cart_product.do")
+	@ResponseBody
+	public ServiceResponse getOrderCartProduct(HttpSession session, Long orderNo){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iOrderService.getOrderCartProduct(user.getId());
+	}
+	/**
+	 * 用户查询订单详细
+	 * @param session
+	 * @param orderNo
+	 * @return
+	 */
+	@RequestMapping("detail.do")
+	@ResponseBody
+	public ServiceResponse detail(HttpSession session, Long orderNo){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iOrderService.getOrderDetail(user.getId(), orderNo);
+	}
+	/**
+	 * 用户查询订单列表
+	 * @param session
+	 * @param pageNum
+	 * @param pageSize
+	 * @return
+	 */
+	@RequestMapping("list.do")
+	@ResponseBody
+	public ServiceResponse list(HttpSession session,@RequestParam(value="pageNum",defaultValue="1")int pageNum,@RequestParam(value="pageSize",defaultValue="10")int pageSize){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		return iOrderService.getOrderList(user.getId(), pageNum, pageSize);
+	}
 	
 	
 	
