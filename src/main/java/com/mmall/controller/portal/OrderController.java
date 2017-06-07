@@ -45,7 +45,8 @@ public class OrderController {
 	 * @param session
 	 * @param shippingId
 	 * @return
-	 */
+	 * 
+	 */ 
 	@RequestMapping("create.do")
 	@ResponseBody
 	public ServiceResponse create(HttpSession session, Integer shippingId){
@@ -61,6 +62,7 @@ public class OrderController {
 	 * @param session
 	 * @param shippingId
 	 * @return
+	 * 
 	 */
 	@RequestMapping("cancel.do")
 	@ResponseBody
@@ -77,6 +79,7 @@ public class OrderController {
 	 * @param session
 	 * @param shippingId
 	 * @return
+	 * 
 	 */
 	@RequestMapping("get_order_cart_product.do")
 	@ResponseBody
@@ -92,6 +95,7 @@ public class OrderController {
 	 * @param session
 	 * @param orderNo
 	 * @return
+	 * 
 	 */
 	@RequestMapping("detail.do")
 	@ResponseBody
@@ -108,6 +112,7 @@ public class OrderController {
 	 * @param pageNum
 	 * @param pageSize
 	 * @return
+	 * 
 	 */
 	@RequestMapping("list.do")
 	@ResponseBody

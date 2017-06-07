@@ -71,6 +71,7 @@ public class OrderServiceImpl implements IOrderService {
 	
 	@Override
 	public ServiceResponse createOrder(Integer userId, Integer shippingId){
+		//获得购物车列表
 		List<Cart> cartList = cartMapper.selectCheckedCartByUserId(userId);
 		//计算总价
 		ServiceResponse serviceResponse = this.getCartOrderItem(userId, cartList);
@@ -184,8 +185,8 @@ public class OrderServiceImpl implements IOrderService {
 		// TODO 发货时间  付款时间
 		int rowCount = orderMapper.insert(order);
 		if(rowCount <= 0){
-			return order;
-		}else return null;
+			return null;
+		}else return order;
 	}
 	private long generateOrderNo(){
 		long currentTime = System.currentTimeMillis();
@@ -207,7 +208,7 @@ public class OrderServiceImpl implements IOrderService {
 		}
 		for(Cart cart : cartList){
 			OrderItem orderItem = new OrderItem();
-			Product product = productMapper.selectByPrimaryKey(cart.getId());
+			Product product = productMapper.selectByPrimaryKey(cart.getProductId());
 			if(Const.productStatusEnum.ON_SALE.getCode() != product.getStatus()){
 				return ServiceResponse.creatByError("产品已下架");
 			}else if(cart.getQuantity() > product.getStock()){
@@ -235,7 +236,7 @@ public class OrderServiceImpl implements IOrderService {
 			return ServiceResponse.creatByError("订单已支付，无法退款");
 		}
 		order.setStatus(Const.OrderStatusEnum.CANCELED.getCode());
-		int count = orderMapper.insertSelective(order);
+		int count = orderMapper.deleteByPrimaryKey(order.getId());
 		if(count <= 0){
 			return ServiceResponse.creatByError("更新失败");
 		}
@@ -474,7 +475,7 @@ public class OrderServiceImpl implements IOrderService {
     	List<OrderVo> orderVos = this.assembleOrderVoList(orders,null);
     	PageInfo  pageInfo = new PageInfo(orderVos);
     	pageInfo.setList(orderVos);
-    	return ServiceResponse.creatBySuccess("创建成功", pageInfo);
+    	return ServiceResponse.creatBySuccess("查询成功", pageInfo);
     }
     @Override
     public ServiceResponse<OrderVo> manageDetail(Long orderNo){
