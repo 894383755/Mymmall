@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.demo.trade.Main;
 import com.alipay.demo.trade.config.Configs;
 import com.alipay.demo.trade.model.ExtendParams;
 import com.alipay.demo.trade.model.GoodsDetail;
@@ -132,7 +133,7 @@ public class OrderController {
 	 * @param request
 	 * @param orderNo
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("pay.do")
 	@ResponseBody
@@ -143,6 +144,9 @@ public class OrderController {
 		}
 		String path = request.getSession().getServletContext().getRealPath("upload");
 		return iOrderService.pay(user.getId(), orderNo, path);
+		// 测试当面付2.0生成支付二维码
+		//new Main().test_trade_precreate();
+		//return ServiceResponse.creatBySuccess("成功");
 	}
 	
 	/**
@@ -192,7 +196,7 @@ public class OrderController {
 	 * @param session
 	 * @param orderNo
 	 * @return
-	 * 未测试
+	 * 
 	 */
 	@RequestMapping("query_order_pay_status.do")
 	@ResponseBody
@@ -201,6 +205,31 @@ public class OrderController {
 		if(user == null){
 			return ServiceResponse.creatByError("未登录");
 		}
-		return iOrderService.queryOrderPayStatus(user.getId(), orderNo);
+		ServiceResponse response = iOrderService.queryOrderPayStatus(user.getId(), orderNo);
+		if(response.isSuccess()){
+			return response;
+		}
+		return iOrderService.queryOrderStatusByAli(orderNo);
+	}
+	
+	/**
+	 * 退款
+	 * @param session
+	 * @param orderNo
+	 * @return
+	 * 未完成
+	 */
+	@RequestMapping("refund.do")
+	@ResponseBody
+	public ServiceResponse refund(HttpSession session, Long orderNo){
+		User user = (User) session.getAttribute(Const.CURRENT_USER);
+		if(user == null){
+			return ServiceResponse.creatByError("未登录");
+		}
+		ServiceResponse response = iOrderService.queryOrderPayStatus(user.getId(), orderNo);
+		if(response.isSuccess()){
+			return response;
+		}
+		return iOrderService.refundOrder(orderNo);
 	}
 }

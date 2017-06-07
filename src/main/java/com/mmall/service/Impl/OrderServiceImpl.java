@@ -11,19 +11,33 @@ import java.util.Random;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alipay.api.AlipayResponse;
+import com.alipay.api.domain.TradeFundBill;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.demo.trade.Main;
+import com.alipay.demo.trade.config.Configs;
 import com.alipay.demo.trade.model.ExtendParams;
 import com.alipay.demo.trade.model.GoodsDetail;
 import com.alipay.demo.trade.model.builder.AlipayTradePrecreateRequestBuilder;
+import com.alipay.demo.trade.model.builder.AlipayTradeQueryRequestBuilder;
+import com.alipay.demo.trade.model.builder.AlipayTradeRefundRequestBuilder;
 import com.alipay.demo.trade.model.result.AlipayF2FPrecreateResult;
+import com.alipay.demo.trade.model.result.AlipayF2FQueryResult;
+import com.alipay.demo.trade.model.result.AlipayF2FRefundResult;
+import com.alipay.demo.trade.service.AlipayMonitorService;
 import com.alipay.demo.trade.service.AlipayTradeService;
+import com.alipay.demo.trade.service.impl.AlipayMonitorServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
+import com.alipay.demo.trade.service.impl.AlipayTradeWithHBServiceImpl;
+import com.alipay.demo.trade.utils.Utils;
 import com.alipay.demo.trade.utils.ZxingUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -304,6 +318,62 @@ public class OrderServiceImpl implements IOrderService {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+    // 支付宝当面付2.0服务
+    //private static AlipayTradeService   tradeService;
+
+    // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
+    //private static AlipayTradeService   tradeWithHBService;
+
+    // 支付宝交易保障接口服务，供测试接口api使用，请先阅读readme.txt
+    //private static AlipayMonitorService monitorService;
+	
+	static {
+        /** 一定要在创建AlipayTradeService之前调用Configs.init()设置默认参数
+         *  Configs会读取classpath下的zfbinfo.properties文件配置信息，如果找不到该文件则确认该文件是否在classpath目录
+         */
+        Configs.init("zfbinfo.properties");
+
+        /** 使用Configs提供的默认参数
+         *  AlipayTradeService可以使用单例或者为静态成员对象，不需要反复new
+         */
+        //tradeService = new AlipayTradeServiceImpl.ClientBuilder().build();
+
+        // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
+        //tradeWithHBService = new AlipayTradeWithHBServiceImpl.ClientBuilder().build();
+
+        /** 如果需要在程序中覆盖Configs提供的默认参数, 可以使用ClientBuilder类的setXXX方法修改默认参数 否则使用代码中的默认设置 */
+//        monitorService = new AlipayMonitorServiceImpl.ClientBuilder()
+//            .setGatewayUrl("http://mcloudmonitor.com/gateway.do").setCharset("GBK")
+//            .setFormat("json").build();
+    }
+	
+	
 	@Override
 	public ServiceResponse pay(Integer userId, Long orderNo, String path){
 		Map<String, String> resultMap = Maps.newHashMap();
@@ -312,7 +382,6 @@ public class OrderServiceImpl implements IOrderService {
 			return ServiceResponse.creatByError("用户没有订单");
 		}
 		resultMap.put("orderMapper", String.valueOf(order.getOrderNo()));
-		
 		
 		
 		// (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
@@ -362,7 +431,6 @@ public class OrderServiceImpl implements IOrderService {
         	// 创建好一个商品后添加至商品明细列表
         	goodsDetailList.add(goodsDetail);
         }
-
         // 创建扫码支付请求builder，设置请求参数
         AlipayTradePrecreateRequestBuilder builder = new AlipayTradePrecreateRequestBuilder()
             .setSubject(subject).setTotalAmount(totalAmount).setOutTradeNo(outTradeNo)
@@ -388,7 +456,11 @@ public class OrderServiceImpl implements IOrderService {
                 }
                 
                 // 需要修改为运行机器上的路径
-                String filePath = String.format("/Users/sudo/Desktop/qr-%s.png",response.getOutTradeNo());
+                
+                //String filePath = String.format("/Users/sudo/Desktop/qr-%s.png",response.getOutTradeNo());
+                String filePath = String.format(file.getParentFile()+"/qr-%s.png",response.getOutTradeNo());
+                File filenow = new File(filePath);
+                System.out.println(filePath);
                 ZxingUtils.getQRCodeImge(response.getQrCode(), 256, filePath);
 
                 log.info("filePath:" + filePath);
@@ -419,7 +491,7 @@ public class OrderServiceImpl implements IOrderService {
 			return ServiceResponse.creatByError("回调订单出错");
 		}
 		if(order.getStatus() >= Const.OrderStatusEnum.PAID.getCode()){
-			return ServiceResponse.creatBySuccess("回调成功");
+			return ServiceResponse.creatBySuccess("回调之前已经成功");
 		}
 		if(Const.AlipayCallback.TREAD_STATUS_TRADE_SUCCESS.equals(tradeStatus)){
 			order.setPaymentTime(DateTimeUtil.strToDate(params.get("gmt_payment")));
@@ -443,9 +515,9 @@ public class OrderServiceImpl implements IOrderService {
 			return ServiceResponse.creatByError("无订单");
 		}
 		if(order.getStatus() >= Const.OrderStatusEnum.PAID.getCode()){
-			return ServiceResponse.creatBySuccess("查询成功",true);
+			return ServiceResponse.creatBySuccess("已支付",true);
 		}
-		return ServiceResponse.creatByError("错误",false);
+		return ServiceResponse.creatByError("未支付",false);
 	}
 	
 	// 简单打印应答
@@ -460,7 +532,93 @@ public class OrderServiceImpl implements IOrderService {
         }
     }
     
+ // 测试当面付2.0查询订单
+    @Override
+    public ServiceResponse queryOrderStatusByAli(Long orderNo) {
+    	String outTradeNo = orderNo.toString();
+        // 创建查询请求builder，设置请求参数
+        AlipayTradeQueryRequestBuilder builder = new AlipayTradeQueryRequestBuilder()
+            .setOutTradeNo(outTradeNo);
+
+        //AlipayF2FQueryResult result = tradeService.queryTradeResult(builder);
+        AlipayF2FQueryResult result = new AlipayTradeServiceImpl.ClientBuilder().build().queryTradeResult(builder);
+        switch (result.getTradeStatus()) {
+            case SUCCESS:
+                log.info("查询返回该订单支付成功: )");
+
+                AlipayTradeQueryResponse response = result.getResponse();
+                dumpResponse(response);
+
+                log.info(response.getTradeStatus());
+                if (Utils.isListNotEmpty(response.getFundBillList())) {
+                    for (TradeFundBill bill : response.getFundBillList()) {
+                        log.info(bill.getFundChannel() + ":" + bill.getAmount());
+                    }
+                }
+                //更新本地支付状态
+                Order order = orderMapper.selectByOrderNo(orderNo);
+                order.setStatus(Const.OrderStatusEnum.PAID.getCode());
+                orderMapper.updateByPrimaryKeySelective(order);
+                return ServiceResponse.creatBySuccess("查询订单支付成功");
+
+            case FAILED:
+                log.error("查询返回该订单支付失败或被关闭!!!");
+                return ServiceResponse.creatByError("查询返回该订单支付失败或被关闭");
+
+            case UNKNOWN:
+                log.error("系统异常，订单支付状态未知!!!");
+                return ServiceResponse.creatByError("系统异常，订单支付状态未知");
+
+            default:
+                log.error("不支持的交易状态，交易返回异常!!!");
+                return ServiceResponse.creatByError("不支持的交易状态，交易返回异常");
+        }
+    }
     
+ // 测试当面付2.0退款
+    @Override
+    public ServiceResponse refundOrder(Long orderNo) {
+    	Order order = orderMapper.selectByOrderNo(orderNo);
+        // (必填) 外部订单号，需要退款交易的商户外部订单号
+        String outTradeNo = orderNo.toString();
+        
+        // (必填) 退款金额，该金额必须小于等于订单的支付金额，单位为元
+        String refundAmount = order.getPayment().toString();
+
+        // (可选，需要支持重复退货时必填) 商户退款请求号，相同支付宝交易号下的不同退款请求号对应同一笔交易的不同退款申请，
+        // 对于相同支付宝交易号下多笔相同商户退款请求号的退款交易，支付宝只会进行一次退款
+        String outRequestNo = "";
+
+        // (必填) 退款原因，可以说明用户退款原因，方便为商家后台提供统计
+        String refundReason = "正常退款";
+
+        // (必填) 商户门店编号，退款情况下可以为商家后台提供退款权限判定和统计等作用，详询支付宝技术支持
+        String storeId = "test_store_id";
+
+        // 创建退款请求builder，设置请求参数
+        AlipayTradeRefundRequestBuilder builder = new AlipayTradeRefundRequestBuilder()
+            .setOutTradeNo(outTradeNo).setRefundAmount(refundAmount).setRefundReason(refundReason)
+            .setOutRequestNo(outRequestNo).setStoreId(storeId);
+
+		AlipayF2FRefundResult result = new AlipayTradeServiceImpl.ClientBuilder().build().tradeRefund(builder);
+        switch (result.getTradeStatus()) {
+            case SUCCESS:
+                log.info("支付宝退款成功: )");
+                return ServiceResponse.creatBySuccess("支付宝退款成功");
+
+            case FAILED:
+                log.error("支付宝退款失败!!!");
+                return ServiceResponse.creatByError("支付宝退款失败");
+
+            case UNKNOWN:
+                log.error("系统异常，订单退款状态未知!!!");
+                return ServiceResponse.creatByError("系统异常，订单退款状态未知");
+
+            default:
+                log.error("不支持的交易状态，交易返回异常!!!");
+                return ServiceResponse.creatByError("不支持的交易状态，交易返回异常");
+        }
+    }
     
     
     

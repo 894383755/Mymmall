@@ -32,4 +32,8 @@ public interface IOrderService {
 
 	ServiceResponse<OrderVo> manageDetail(Long orderNo);
 
+	ServiceResponse queryOrderStatusByAli(Long orderNo);
+	
+	ServiceResponse refundOrder(Long orderNo);
+
 }
