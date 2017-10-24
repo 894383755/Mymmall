@@ -20,6 +20,9 @@ public class TokenCache {
 	private static Logger logger = LoggerFactory.getLogger(TokenCache.class);
 	
 	public static final String TOKEN_PREFIX = "token_";
+	/**
+	 * google 缓存机制
+	 */
 	private static LoadingCache<String, String> lodingCache = CacheBuilder.newBuilder()
 			.initialCapacity(1000)//初始化最大值
 			.maximumSize(10000)//最大值,超过使用lru算法

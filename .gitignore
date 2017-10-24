@@ -75,3 +75,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.DS_Store
+/node_modules/
+/dist/
+npm-debug.log

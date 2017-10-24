@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements ICategoryService {
 			 ServiceResponse.creatByError("添加品类失败");
 		}
 		return ServiceResponse.creatBySuccess("添加品类成功");
-	}
+	} 
 
 	@Override
 	public ServiceResponse<Category> updataCategoryName(String categoryName, Integer categoryId) {
